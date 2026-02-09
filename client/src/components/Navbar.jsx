@@ -1,39 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Film, User, LogOut, Ticket, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { Film, User, LogOut, Ticket, Search, MessageSquare } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        const loadUser = () => {
-            try {
-                const storedUser = localStorage.getItem('user');
-                if (storedUser && storedUser !== 'undefined') {
-                    setUser(JSON.parse(storedUser));
-                } else {
-                    setUser(null);
-                }
-            } catch (err) {
-                console.error('Navbar: Failed to parse user from localStorage', err);
-                localStorage.removeItem('user');
-            }
-        };
-
-        loadUser();
-
-        // Listen for user updates from Profile page
-        window.addEventListener('storage', loadUser);
-        return () => window.removeEventListener('storage', loadUser);
-    }, []);
+    const { user, logout } = useAuth();
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
+        logout();
         navigate('/login');
     };
 
@@ -70,6 +47,9 @@ const Navbar = () => {
             <div className="flex items-center gap-6 ml-4">
                 <div className="hidden md:flex items-center gap-6">
                     <Link to="/" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Movies</Link>
+                    <Link to="/reviews" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1">
+                        <MessageSquare size={16} /> Community
+                    </Link>
                     {user && (
                         <Link to="/tickets" className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1">
                             <Ticket size={16} /> My Tickets
@@ -80,7 +60,24 @@ const Navbar = () => {
                 <div className="flex items-center gap-4">
                     {user ? (
                         <div className="flex items-center gap-4">
+                            {user.role === 'admin' && (
+                                <Link to="/admin" className="text-primary hover:text-red-400 transition-colors text-sm font-bold uppercase tracking-wider">
+                                    Dashboard
+                                </Link>
+                            )}
                             <span className="text-sm text-gray-300 hidden md:inline">Hi, {user.name}</span>
+
+                            <Link to="/profile" className="flex items-center gap-2 group">
+                                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-primary/50 transition-all bg-white/5 flex items-center justify-center">
+                                    {user.avatar_url ? (
+                                        <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="text-[10px] font-bold text-primary">
+                                            {user.name?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
+                                    )}
+                                </div>
+                            </Link>
 
                             <button
                                 onClick={handleLogout}

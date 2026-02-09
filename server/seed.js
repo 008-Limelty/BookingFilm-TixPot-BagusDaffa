@@ -54,7 +54,7 @@ const movies = [
     },
     {
         title: "The Matrix",
-        genre: ["Action", "Sci-Fi"],
+        genre: ["Action", "Sci-Fi", "Cyberpunk"],
         duration: "2h 16m",
         rating: 8.7,
         director: "Lana Wachowski, Lilly Wachowski",
@@ -94,7 +94,7 @@ const movies = [
     },
     {
         title: "The Shawshank Redemption",
-        genre: ["Drama"],
+        genre: ["Drama", "Prison Drama", "Period Drama"], 
         duration: "2h 22m",
         rating: 9.3,
         director: "Frank Darabont",
@@ -104,7 +104,7 @@ const movies = [
     },
     {
         title: "Forest Gump",
-        genre: ["Drama", "Romance"],
+        genre: ["Drama", "Romance", "Epic"],
         duration: "2h 22m",
         rating: 8.8,
         director: "Robert Zemeckis",
@@ -114,13 +114,53 @@ const movies = [
     },
     {
         title: "The Witch",
-        genre: ["psychological Horror"],
+        genre: ["psychological Horror", "Dark Fantasy", "supernatural Horror"],
         duration: "1h 32m",
         rating: 7.0,
         director: "Robert Eggers",
         cast: ["Anna Taylor-Joy", "Ralph Ineson", "Kate Dickie"],
         description: "An isolated Puritan family in 1630s New England comes unraveled by the forces of witchcraft and possession.",
         poster: "https://upload.wikimedia.org/wikipedia/id/b/bf/The_Witch_poster.png"
+    },
+    {
+        title: "Iron Lung",
+        genre: ["psychological Horror", "Sci-Fi", "Thriller"],
+        duration: "2h 5m",
+        rating: 6.6,
+        director: "Mark Fischbach",
+        cast: ["Mark Fischbach", "Carroline Kaplan", "Troy Baker"],
+        description: "In a post-apocalyptic future after 'The Quiet Rapture' event, a convict explores a blood ocean on a desolate moon using a submarine called the 'Iron Lung' to search for missing stars/planets.",
+        poster: "https://en.wikipedia.org/wiki/File:Iron_Lung_(film)_poster.jpg"
+    },
+    {
+        title: "Five Night at Freddy's",
+        genre: ["Supernatural Horror", "Thriller", "Mystery"],
+        duration: "1h 50m",
+        director: "Emma Tammi",
+        rating: 5.4,
+        cast: ["Josh Hutcherson", "Piper Rubio", "Elizabeth Lail"],
+        description: "A troubled security guard begins working at Freddy Fazbear's Pizza. During his five nights on the job, he realizes that something is wrong with the pizzeria and pretty soon finds the truth about its animatronics.",
+        poster: "https://id.wikipedia.org/wiki/Berkas:Five_Nights_At_Freddy's_poster.jpeg"
+    },
+    {
+        title: "Spirited Away",
+        genre: ["Anime", "Adventure", "Fairy Tale"],
+        duration: "2h 5m",
+        director: "Hayao Miyazaki",
+        rating: 8.6,
+        cast: ["Miyu Irino", "Rumi Hiiragi", "Mari Natsuki"],
+        description: "During her family's move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches and spirits, and where humans are changed into beasts.",
+        poster: "https://id.wikipedia.org/wiki/Berkas:Spirited_Away_Japanese_poster.png"
+    },
+    {
+        title: "Jumanji: Welcome to the Jungle",
+        genre: ["Advanture", "Comedy", "Action"],
+        duration: "2h",
+        director: "Jake Kasdan",
+        rating: 6.9,
+        cast: ["Dwayne Johnson", "Kevin Hart", "Karen Gillan"],
+        description: "Four teenagers are sucked into a magical video game, and the only way they can escape is to work together to finish the game.",
+        poster: "https://en.wikipedia.org/wiki/File:Jumanji_Welcome_to_the_Jungle.png"
     }
 ];
 
@@ -166,9 +206,13 @@ const seed = async () => {
                 const dateStr = tomorrow.toISOString().split('T')[0];
                 const fullTime = `${dateStr} ${time}:00`;
 
+                const basePrice = 35000;
+                const randomPremium = Math.floor(Math.random() * 6) * 5000; 
+                const price = basePrice + randomPremium;
+
                 await db.query(
                     'INSERT INTO schedules (movie_id, theater_id, start_time, price) VALUES (?, ?, ?, ?)',
-                    [movieId, theaterId, fullTime, 12.50]
+                    [movieId, theaterId, fullTime, price]
                 );
                 console.log(`  Added schedule: ${fullTime} at Theater ${theaterId}`);
             }

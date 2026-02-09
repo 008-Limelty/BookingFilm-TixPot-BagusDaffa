@@ -81,7 +81,6 @@ const MovieDetails = () => {
         const token = localStorage.getItem('token');
 
         if (!token) {
-            // Save pending booking
             const pendingBooking = {
                 movieId: id,
                 schedule: selectedSchedule,
@@ -96,16 +95,44 @@ const MovieDetails = () => {
         if (!selectedSchedule || selectedSeats.length === 0) return;
 
         try {
-            await api.post('/bookings', {
+            const response = await api.post('/bookings', {
                 schedule_id: selectedSchedule.id,
                 seats: selectedSeats,
                 total_price: (Number(selectedSchedule.price) * selectedSeats.length)
             });
-            alert('Booking Successful!');
-            navigate('/tickets');
+
+            const { snapToken } = response.data;
+
+            if (window.snap) {
+                window.snap.pay(snapToken, {
+                    onSuccess: function (result) {
+                        console.log('Payment success:', result);
+                        alert('Payment successful! Your ticket is confirmed.');
+                        navigate('/tickets');
+                    },
+                    onPending: function (result) {
+                        console.log('Payment pending:', result);
+                        alert('Payment is pending. Please complete your payment.');
+                        navigate('/tickets');
+                    },
+                    onError: function (result) {
+                        console.log('Payment error:', result);
+                        alert('Payment failed. Please try again.');
+                    },
+                    onClose: function () {
+                        console.log('Customer closed the popup without finishing the payment');
+                        alert('You closed the payment popup. Your booking is saved as "Pending" in My Tickets. Please complete payment there to confirm your seats.');
+                        navigate('/tickets');
+                    }
+                });
+            } else {
+                alert('Midtrans Snap is not loaded yet. Please refresh the page.');
+            }
+
         } catch (err) {
-            console.error('Booking Error:', err);
-            alert('Booking failed. Please check your terminal for errors.');
+            console.error('Booking Error details:', err);
+            const errorMsg = err.response?.data?.message || 'Booking failed. Please check your internet connection or server status.';
+            alert(`Error: ${errorMsg}`);
         }
     };
 
@@ -193,7 +220,7 @@ const MovieDetails = () => {
                                         <div className="text-2xl font-black mb-2">
                                             {new Date(schedule.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
                                         </div>
-                                        <div className="text-sm font-bold opacity-80">$ {Number(schedule.price).toFixed(2)}</div>
+                                        <div className="text-sm font-bold opacity-80">Rp {Number(schedule.price).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                                         {selectedSchedule?.id === schedule.id && (
                                             <div className="absolute top-0 right-0 w-8 h-8 bg-white/20 flex items-center justify-center rounded-bl-xl">
                                                 <Star size={12} fill="white" />
@@ -225,8 +252,8 @@ const MovieDetails = () => {
                                 <div className="text-center md:text-left">
                                     <div className="text-xs text-muted uppercase tracking-[0.2em] font-black mb-2">Total Amount</div>
                                     <div className="text-5xl font-black text-white flex items-baseline gap-1">
-                                        <span className="text-primary text-2xl">$</span>
-                                        {(Number(selectedSchedule.price) * selectedSeats.length).toFixed(2)}
+                                        <span className="text-primary text-2xl">Rp</span>
+                                        {(Number(selectedSchedule.price) * selectedSeats.length).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                     </div>
                                     <div className="text-sm text-primary font-bold mt-2 uppercase tracking-widest">
                                         {selectedSeats.length} Seats Selected

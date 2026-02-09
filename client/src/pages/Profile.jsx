@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import api from '../lib/api';
 import { User, Mail, Image as ImageIcon, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
-    const [user, setUser] = useState(null);
+    const { user, setUser } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -14,17 +15,14 @@ const Profile = () => {
     const [message, setMessage] = useState(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
+        if (user) {
             setFormData({
-                name: parsedUser.name || '',
-                email: parsedUser.email || '',
-                avatar_url: parsedUser.avatar_url || ''
+                name: user.name || '',
+                email: user.email || '',
+                avatar_url: user.avatar_url || ''
             });
         }
-    }, []);
+    }, [user]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,8 +37,6 @@ const Profile = () => {
             localStorage.setItem('user', JSON.stringify(res.data.user));
             setUser(res.data.user);
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
-            // Dispatch event for Navbar update
-            window.dispatchEvent(new Event('storage'));
         } catch (err) {
             setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to update profile' });
         } finally {
@@ -59,6 +55,10 @@ const Profile = () => {
         </Layout>
     );
 
+    const selectAvatar = (url) => {
+        setFormData({ ...formData, avatar_url: url });
+    };
+
     return (
         <Layout>
             <div className="max-w-2xl mx-auto py-12 animate-fade-in">
@@ -71,7 +71,7 @@ const Profile = () => {
                                         <img
                                             src={formData.avatar_url}
                                             alt="Profile"
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover transition-transform group-hover:scale-110"
                                             onError={(e) => { e.target.src = ''; }}
                                         />
                                     ) : (
@@ -91,50 +91,53 @@ const Profile = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-2">
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            {/* Avatar URL Section */}
+                            <div className="space-y-4">
                                 <label className="text-sm font-medium text-gray-400 flex items-center gap-2 ml-1">
-                                    <User size={14} /> Full Name
-                                </label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    placeholder="Enter your name"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white placeholder:text-gray-600"
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-400 flex items-center gap-2 ml-1">
-                                    <Mail size={14} /> Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder="Enter your email"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white placeholder:text-gray-600"
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-400 flex items-center gap-2 ml-1">
-                                    <ImageIcon size={14} /> Avatar URL
+                                    <ImageIcon size={14} /> File Image
                                 </label>
                                 <input
                                     type="url"
                                     name="avatar_url"
                                     value={formData.avatar_url}
                                     onChange={handleChange}
-                                    placeholder="https://example.com/photo.jpg"
+                                    placeholder="Paste your image URL here (e.g., https://example.com/photo.jpg)"
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white placeholder:text-gray-600"
                                 />
-                                <p className="text-[11px] text-muted ml-1 mt-1">Paste a direct link to an image (JPG, PNG, WebP)</p>
+                                <p className="text-[11px] text-muted ml-1 italic opacity-60">Please provide a direct link to a JPG, PNG, or WebP image.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-400 flex items-center gap-2 ml-1">
+                                        <User size={14} /> Full Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        placeholder="Enter your name"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white placeholder:text-gray-600"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-400 flex items-center gap-2 ml-1">
+                                        <Mail size={14} /> Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        placeholder="Enter your email"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white placeholder:text-gray-600"
+                                        required
+                                    />
+                                </div>
                             </div>
 
                             <button

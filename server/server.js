@@ -13,10 +13,16 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 const movieRoutes = require('./routes/movies');
 const bookingRoutes = require('./routes/bookings');
+const paymentRoutes = require('./routes/payment');
+const adminRoutes = require('./routes/admin');
+const reviewRoutes = require('./routes/reviews');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 
 app.get('/', (req, res) => {

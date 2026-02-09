@@ -69,8 +69,19 @@ CREATE TABLE IF NOT EXISTS booking_seats (
     FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    movie_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
+);
 
 INSERT IGNORE INTO users (id, name, email, password, role) VALUES (1, 'Test User', 'test@example.com', '$2b$10$WzR2okI8Ao0acSBL53K8Ft22NpedgPaa', 'user');
+INSERT IGNORE INTO users (id, name, email, password, role) VALUES (2, 'Admin Tixpot', 'admin@tixpot.com', '$2b$10$M.ycCpbUsctZWG0s7da98usHIVjV9nuVFvByYFjdHSr3eOdxb5cn.', 'admin');
 
 INSERT INTO theaters (name, total_rows, seats_per_row) VALUES 
 ('XXI', 8, 10),
