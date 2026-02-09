@@ -92,7 +92,6 @@ const Profile = () => {
                         )}
 
                         <form onSubmit={handleSubmit} className="space-y-8">
-                            {/* Avatar URL Section */}
                             <div className="space-y-4">
                                 <label className="text-sm font-medium text-gray-400 flex items-center gap-2 ml-1">
                                     <ImageIcon size={14} /> File Image

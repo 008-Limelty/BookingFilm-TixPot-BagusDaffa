@@ -1,6 +1,5 @@
 const axios = require('axios');
 
-// CONFIGURATION
 const SERVER_URL = 'http://localhost:5000/api/payment/notification';
 const BOOKING_ID = process.argv[2]; 
 

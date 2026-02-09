@@ -66,8 +66,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
-// Update Profile
 router.put('/profile', async (req, res) => {
     const { name, email, avatar_url } = req.body;
     const authHeader = req.headers.authorization;
@@ -81,7 +79,6 @@ router.put('/profile', async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
 
-        // Check if email already exists for another user
         const [existing] = await db.query('SELECT * FROM users WHERE email = ? AND id != ?', [email, userId]);
         if (existing.length > 0) {
             return res.status(400).json({ message: 'Email already in use' });

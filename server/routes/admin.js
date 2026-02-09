@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
 
-// Middleware to verify admin role
 const isAdmin = (req, res, next) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ message: 'Access denied' });
@@ -23,7 +22,6 @@ const isAdmin = (req, res, next) => {
     }
 };
 
-// Get Dashboard Stats
 router.get('/stats', isAdmin, async (req, res) => {
     try {
         const [totalBookings] = await db.query('SELECT COUNT(*) as count FROM bookings');
@@ -43,7 +41,6 @@ router.get('/stats', isAdmin, async (req, res) => {
     }
 });
 
-// Get All Bookings
 router.get('/bookings', isAdmin, async (req, res) => {
     try {
         const [bookings] = await db.query(`

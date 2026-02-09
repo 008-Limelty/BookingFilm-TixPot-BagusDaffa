@@ -16,7 +16,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// GET all reviews (SOAL 4: Data Dinamis)
 router.get('/', async (req, res) => {
     try {
         const query = `

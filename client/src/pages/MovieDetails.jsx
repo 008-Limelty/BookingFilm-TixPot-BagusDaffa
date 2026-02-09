@@ -190,7 +190,6 @@ const MovieDetails = () => {
                     </div>
                 </div>
 
-                {/* Main Content */}
                 <div className="lg:col-span-3 space-y-12">
                     <div className="bg-surface/30 p-8 rounded-3xl border border-white/5 backdrop-blur-sm">
                         <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">

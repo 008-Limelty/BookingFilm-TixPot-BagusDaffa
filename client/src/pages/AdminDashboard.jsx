@@ -75,7 +75,6 @@ const AdminDashboard = () => {
                     Admin Dashboard
                 </h1>
 
-                {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     <StatCard
                         title="Total Revenue"
@@ -192,7 +191,6 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            {/* Visualizer Modal */}
             {showModal && selectedBooking && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md animate-fade-in">
                     <div className="absolute inset-0 bg-black/60" onClick={() => setShowModal(false)}></div>

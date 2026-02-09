@@ -23,7 +23,6 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Create Midtrans Snap client
 let snap = new midtransClient.Snap({
     isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
     serverKey: process.env.MIDTRANS_SERVER_KEY,
@@ -54,7 +53,6 @@ router.post('/', verifyToken, async (req, res) => {
             return res.status(400).json({ message: 'One or more seats are already booked' });
         }
 
-        // Insert booking as 'pending'
         const [bookingResult] = await connection.query(
             'INSERT INTO bookings (user_id, schedule_id, total_price, status) VALUES (?, ?, ?, ?)',
             [req.user.id, schedule_id, total_price, 'pending']
@@ -65,11 +63,9 @@ router.post('/', verifyToken, async (req, res) => {
         let sql = 'INSERT INTO booking_seats (booking_id, seat_row, seat_number) VALUES ?';
         await connection.query(sql, [seatValues]);
 
-        // Get User details for Midtrans (optional but good practice)
         const [users] = await connection.query('SELECT name, email FROM users WHERE id = ?', [req.user.id]);
         const user = users[0];
 
-        // Midtrans Transaction Parameters
         let parameter = {
             "transaction_details": {
                 "order_id": `BOOKING-${bookingId}`,
@@ -107,7 +103,6 @@ router.post('/', verifyToken, async (req, res) => {
         await connection.rollback();
         console.error('Booking Error details:', err);
 
-        // Return a cleaner error message to the frontend
         let message = 'Booking failed';
         if (err.ApiResponse && err.ApiResponse.error_messages) {
             message = `Midtrans Error: ${err.ApiResponse.error_messages.join(', ')}`;
@@ -121,10 +116,8 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 
-// Get User Bookings (with auto-sync for localhost)
 router.get('/user', verifyToken, async (req, res) => {
     try {
-        // Find all pending bookings for this user to sync status with Midtrans
         const [pendingBookings] = await db.query(
             'SELECT id FROM bookings WHERE user_id = ? AND status = "pending"',
             [req.user.id]
@@ -143,7 +136,6 @@ router.get('/user', verifyToken, async (req, res) => {
                     await db.query('UPDATE bookings SET status = ? WHERE id = ?', ['cancelled', pending.id]);
                 }
             } catch (snapErr) {
-                // If 404, it means transaction hasn't been started yet, just ignore
                 if (snapErr.httpStatusCode !== 404) {
                     console.error(`Auto-sync error for #${pending.id}:`, snapErr.message);
                 }
@@ -172,7 +164,6 @@ router.get('/user', verifyToken, async (req, res) => {
     }
 });
 
-// Cancel Booking
 router.put('/:id/cancel', verifyToken, async (req, res) => {
     try {
         const [bookings] = await db.query('SELECT * FROM bookings WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
@@ -195,7 +186,6 @@ router.put('/:id/cancel', verifyToken, async (req, res) => {
     }
 });
 
-// Get Snap Token for existing booking
 router.get('/:id/token', verifyToken, async (req, res) => {
     try {
         const [bookings] = await db.query(`
@@ -214,7 +204,6 @@ router.get('/:id/token', verifyToken, async (req, res) => {
             return res.status(400).json({ message: 'Only pending bookings can be paid' });
         }
 
-        // Get seat count for the display name
         const [seats] = await db.query('SELECT COUNT(*) as count FROM booking_seats WHERE booking_id = ?', [booking.id]);
 
         let parameter = {

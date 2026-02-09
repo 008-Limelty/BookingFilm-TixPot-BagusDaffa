@@ -38,7 +38,6 @@ const ReviewForm = ({ onReviewAdded }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Simple validation (SOAL 5)
         if (!state.movie_id) return setError('Please select a movie');
         if (!state.comment.trim()) return setError('Please enter a comment');
         if (state.comment.length < 5) return setError('Comment is too short');

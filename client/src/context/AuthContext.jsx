@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
 
         checkUser();
 
-        // Listen for storage changes (e.g., from Profile.jsx sync)
         window.addEventListener('storage', checkUser);
         return () => window.removeEventListener('storage', checkUser);
     }, []);
